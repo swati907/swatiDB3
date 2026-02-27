@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import "./App.css";
 
@@ -6,7 +7,7 @@ import {
   createSchedule,
   updateSchedule,
   deleteScheduleApi
-} from "./api/scheduleapi";
+} from "./api/ScheduleApi";
 
 function App() {
   const [schedules, setSchedules] = useState([]);
