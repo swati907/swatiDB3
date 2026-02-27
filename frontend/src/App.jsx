@@ -7,7 +7,7 @@ import {
   createSchedule,
   updateSchedule,
   deleteScheduleApi
-} from "./api/Scheduleapi";
+} from "./api/ScheduleApi.js";
 
 function App() {
   const [schedules, setSchedules] = useState([]);
