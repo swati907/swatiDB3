@@ -12,57 +12,64 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // ✅ Important for Render
 
+// =========================
 // Middleware
+// =========================
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors()); // ✅ Allow all origins (works for Render + Local)
 app.use(express.static(path.join(__dirname, "public")));
 
+// =========================
 // MongoDB Connection
+// =========================
 mongoose.connect(process.env.MONGO_URL)
     .then(() => console.log("MongoDB Atlas Connected"))
-    .catch(err => {
+    .catch((err) => {
         console.error("MongoDB connection error:", err);
         process.exit(1);
     });
 
-/* =========================
-   SCHEDULE SCHEMA
-========================= */
-const scheduleSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true
+// =========================
+// SCHEDULE SCHEMA
+// =========================
+const scheduleSchema = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        description: {
+            type: String,
+            default: "",
+        },
+        date: {
+            type: String,
+            required: true,
+        },
+        startTime: {
+            type: String,
+            required: true,
+        },
+        endTime: {
+            type: String,
+            required: true,
+        },
+        completed: {
+            type: Boolean,
+            default: false,
+        },
     },
-    description: {
-        type: String,
-        default: ""
-    },
-    date: {
-        type: String,
-        required: true
-    },
-    startTime: {
-        type: String,
-        required: true
-    },
-    endTime: {
-        type: String,
-        required: true
-    },
-    completed: {
-        type: Boolean,
-        default: false
-    }
-}, { timestamps: true });
+    { timestamps: true }
+);
 
 const Schedule = mongoose.model("Schedule", scheduleSchema);
 
-/* =========================
-   ROUTES
-========================= */
+// =========================
+// ROUTES
+// =========================
 
 // GET ALL SCHEDULES
 app.get("/api/schedules", async (req, res) => {
@@ -80,7 +87,9 @@ app.post("/api/schedules", async (req, res) => {
         const { title, description, date, startTime, endTime } = req.body;
 
         if (!title || !date || !startTime || !endTime) {
-            return res.status(400).json({ message: "All required fields must be filled" });
+            return res
+                .status(400)
+                .json({ message: "All required fields must be filled" });
         }
 
         const newSchedule = await Schedule.create({
@@ -88,7 +97,7 @@ app.post("/api/schedules", async (req, res) => {
             description,
             date,
             startTime,
-            endTime
+            endTime,
         });
 
         res.status(201).json(newSchedule);
@@ -131,7 +140,9 @@ app.delete("/api/schedules/:id", async (req, res) => {
     }
 });
 
+// =========================
 // START SERVER
+// =========================
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
